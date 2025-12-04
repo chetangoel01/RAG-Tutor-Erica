@@ -2,6 +2,15 @@
 
 An AI-powered tutor for the Introduction to AI course, built with GraphRAG (Graph-based Retrieval Augmented Generation).
 
+## Student Questions (M4 Deliverable)
+
+Example outputs from Erica for three student questions can be found in the `student_questions/` folder:
+- **Q1**: "What is attention in transformers and can you provide a python example of how it is used ?"
+- **Q2**: "What is CLIP and how it is used in computer vision applications?"
+- **Q3**: "Can you explain the variational lower bound and how it relates to Jensen's inequality?"
+
+These PDFs demonstrate Erica's ability to provide comprehensive, well-structured answers using the knowledge graph. See the [Reproducing Student Questions Results](#reproducing-student-questions-results) section for instructions on how to reproduce these results.
+
 ## Project Structure
 
 ```
@@ -77,22 +86,9 @@ docker-compose ps
 
 Open Jupyter at http://localhost:8888 and run `notebooks/01_verify_environment.ipynb` to verify all services are running correctly.
 
-## Cost Management (Important!)
-
-You're using OpenRouter which charges per token. To avoid surprise bills:
-
-1. **Set a spending limit** in [OpenRouter dashboard](https://openrouter.ai/settings/limits)
-2. Start with a smaller model: `qwen/qwen-2.5-7b-instruct` (~$0.0003/1K tokens)
-3. Scale up to `qwen/qwen-2.5-72b-instruct` only when needed
-
-Estimated costs for this project (rough):
-- Entity extraction for ~100 documents: $1-5
-- Query/generation testing: $0.50-2
-- Total project: likely under $10 if careful
-
 ## Milestones
 
-- [ ] **M1**: Environment and Tooling ← You are here
+- [ ] **M1**: Environment and Tooling
 - [ ] **M2**: Ingestion Pipeline
 - [ ] **M3**: Knowledge Graph Construction
 - [ ] **M4**: Query and Generation
