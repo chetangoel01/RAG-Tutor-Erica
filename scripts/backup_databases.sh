@@ -131,7 +131,6 @@ mkdir -p "${CHROMA_BACKUP}"
 CHROMA_VOLUME_NAME=""
 for vol_name in erica_ai_tutor_chroma_data erica_chroma_data chroma_data; do
     if docker volume inspect "$vol_name" >/dev/null 2>&1; then
-        # Check if this volume is actually used by the chromadb container
         if docker inspect erica-chromadb --format '{{range .Mounts}}{{.Name}}{{end}}' 2>/dev/null | grep -q "$vol_name"; then
             CHROMA_VOLUME_NAME="$vol_name"
             break

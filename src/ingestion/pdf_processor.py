@@ -27,7 +27,6 @@ class PDFProcessor:
         self.timeout = timeout
         self.max_pages = max_pages
         
-        # Ensure directory exists
         self.storage.pdfs_dir.mkdir(parents=True, exist_ok=True)
         
         self.session = requests.Session()
@@ -117,7 +116,6 @@ class PDFProcessor:
             }
         )
         
-        # Store extracted text in a separate field for easy querying
         self.storage.resources.update_one(
             {"url": url},
             {"$set": {"content": text}}
@@ -142,7 +140,6 @@ class PDFProcessor:
                 status_code=response.status_code
             )
             
-            # Mark as failed
             self.storage.resources.update_one(
                 {"url": url},
                 {"$set": {"status": "failed"}}

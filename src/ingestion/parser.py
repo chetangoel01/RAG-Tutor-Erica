@@ -46,21 +46,17 @@ def parse_html(html: str, page_url: str) -> ParsedPage:
     """
     soup = BeautifulSoup(html, 'html.parser')
     
-    # Extract title first (before any modifications)
     title = extract_title(soup)
     
-    # IMPORTANT: Extract links from FULL HTML before stripping nav elements
-    # This ensures we capture navigation links
+    # Extract links before stripping nav elements
     links = extract_links(soup, page_url)
     
-    # Extract images with context (also before stripping)
+    # Extract images before stripping
     images = extract_images(soup, page_url)
     
-    # Add image URLs to links dict
     links['image'] = [img.url for img in images]
     
-    # NOW extract main content (this modifies soup by removing nav, etc.)
-    # We create a fresh soup for content extraction to avoid side effects
+    # Extract main content (create fresh soup to avoid side effects)
     content_soup = BeautifulSoup(html, 'html.parser')
     content = extract_content(content_soup)
     

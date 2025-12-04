@@ -39,7 +39,6 @@ class Storage:
         self.images_dir = self.data_dir / "images"
         self.pdfs_dir = self.data_dir / "pdfs"
         
-        # Ensure directories exist
         self.images_dir.mkdir(parents=True, exist_ok=True)
         self.pdfs_dir.mkdir(parents=True, exist_ok=True)
         

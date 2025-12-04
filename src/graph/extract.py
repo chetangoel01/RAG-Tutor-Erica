@@ -44,7 +44,7 @@ vllm_image = (
 
 
 # =============================================================================
-# Extraction Prompt (System + User) - NOW INCLUDES EXAMPLES
+# Extraction Prompt (System + User)
 # =============================================================================
 
 SYSTEM_PROMPT = """You are an expert at extracting AI/ML concepts from educational content.
@@ -131,7 +131,7 @@ class Extractor:
             dtype="bfloat16",
             max_model_len=8192,
             gpu_memory_utilization=0.90,
-            seed=0,  # Explicit seed to avoid deprecation warning
+            seed=0,
         )
         
         # Sampling params for non-thinking mode (lower temperature for structured output)
@@ -152,8 +152,6 @@ class Extractor:
             {"role": "user", "content": USER_PROMPT_TEMPLATE.format(text=text)}
         ]
         
-        # Apply chat template with enable_thinking=False
-        # This disables the <think>...</think> reasoning mode
         prompt = self.tokenizer.apply_chat_template(
             messages,
             tokenize=False,
@@ -189,7 +187,7 @@ class Extractor:
                 "source_url": chunk.get("source_url", ""),
                 "concepts": [],
                 "relations": [],
-                "examples": [],  # NEW: examples field
+                "examples": [],
                 "error": None,
             }
             
@@ -198,10 +196,9 @@ class Extractor:
                 
                 # Remove any thinking tags if they somehow appeared
                 if "<think>" in raw_text:
-                    # Extract content after </think>
                     think_end = raw_text.find("</think>")
                     if think_end != -1:
-                        raw_text = raw_text[think_end + 8:].strip()
+                        raw_text = raw_text[think_end + len("</think>"):].strip()
                 
                 # Clean up common formatting issues
                 if raw_text.startswith("```json"):
@@ -214,7 +211,6 @@ class Extractor:
                 
                 # Try to find JSON object in response
                 if not raw_text.startswith("{"):
-                    # Look for first { in response
                     json_start = raw_text.find("{")
                     if json_start != -1:
                         raw_text = raw_text[json_start:]
@@ -238,7 +234,7 @@ class Extractor:
                 
                 concepts = parsed.get("concepts", [])
                 relations = parsed.get("relations", [])
-                examples = parsed.get("examples", [])  # NEW: extract examples
+                examples = parsed.get("examples", [])
                 
                 # Basic validation
                 if not isinstance(concepts, list):
@@ -250,7 +246,7 @@ class Extractor:
                 
                 result["concepts"] = concepts
                 result["relations"] = relations
-                result["examples"] = examples  # NEW: include examples
+                result["examples"] = examples
             
             except json.JSONDecodeError as e:
                 result["error"] = f"JSON parse error: {str(e)}"
@@ -363,7 +359,7 @@ def main(
     print(f"Chunks:     {len(all_results)}")
     print(f"Concepts:   {n_concepts}")
     print(f"Relations:  {n_relations}")
-    print(f"Examples:   {n_examples}")  # NEW
+    print(f"Examples:   {n_examples}")
     print(f"Errors:     {n_errors} ({100*n_errors/len(all_results):.1f}%)")
     print(f"Output:     {output}")
     print(

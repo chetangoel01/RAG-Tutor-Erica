@@ -117,19 +117,15 @@ class YouTubeProcessor:
         Returns (transcript_text, metadata) or None if failed.
         """
         try:
-            # Create instance and get list of available transcripts
             ytt_api = YouTubeTranscriptApi()
             transcript_list = ytt_api.list(video_id)
             
-            # Find best transcript - prefer manual English, then auto-generated
             transcript_info = None
             is_auto = False
             language = None
             
-            # Convert to list to allow multiple iterations
             available_transcripts = list(transcript_list)
             
-            # First pass: look for manual English transcript
             for transcript in available_transcripts:
                 if transcript.language_code.startswith('en') and not transcript.is_generated:
                     transcript_info = transcript
@@ -137,7 +133,6 @@ class YouTubeProcessor:
                     is_auto = False
                     break
             
-            # Second pass: look for auto-generated English
             if transcript_info is None:
                 for transcript in available_transcripts:
                     if transcript.language_code.startswith('en') and transcript.is_generated:
@@ -146,7 +141,6 @@ class YouTubeProcessor:
                         is_auto = True
                         break
             
-            # Third pass: try using find methods, then take any available transcript
             if transcript_info is None:
                 try:
                     transcript_info = transcript_list.find_manually_created_transcript(['en'])
@@ -158,7 +152,6 @@ class YouTubeProcessor:
                         language = transcript_info.language_code
                         is_auto = True
                     except:
-                        # Take first available transcript
                         if available_transcripts:
                             transcript_info = available_transcripts[0]
                             language = transcript_info.language_code
@@ -177,7 +170,6 @@ class YouTubeProcessor:
             transcript_data = transcript_info.fetch()
             
             # Combine snippets into full text
-            # transcript_data is a list of FetchedTranscriptSnippet objects with .text, .start, .duration attributes
             text_parts = [entry.text for entry in transcript_data]
             full_text = ' '.join(text_parts)
             
@@ -222,7 +214,6 @@ class YouTubeProcessor:
             return None
         except CouldNotRetrieveTranscript as e:
             error_msg = str(e)
-            # Check error message for specific cases
             if "too many requests" in error_msg.lower() or "rate limit" in error_msg.lower():
                 logger.warning(f"  Too many requests to YouTube")
                 failure_type = "rate_limit"

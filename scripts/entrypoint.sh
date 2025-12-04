@@ -79,7 +79,6 @@ sys.path.insert(0, '/app')
 from pymongo import MongoClient
 import chromadb
 
-# Re-check MongoDB (in case we just restored)
 mongo_client = MongoClient("mongodb://erica:erica_password_123@mongodb:27017/")
 db = mongo_client["erica"]
 concept_count = db.concepts.count_documents({})

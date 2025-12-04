@@ -9,7 +9,7 @@ Example outputs from Erica for three student questions can be found in the `stud
 - **Q2**: "What is CLIP and how it is used in computer vision applications?"
 - **Q3**: "Can you explain the variational lower bound and how it relates to Jensen's inequality?"
 
-These PDFs demonstrate Erica's ability to provide comprehensive, well-structured answers using the knowledge graph. See the [Reproducing Student Questions Results](#reproducing-student-questions-results) section for instructions on how to reproduce these results.
+See the [Reproducing Student Questions Results](#reproducing-student-questions-results) section for instructions on how to reproduce these results.
 
 ## Project Structure
 

@@ -46,7 +46,6 @@ def get_chromadb_volume_name() -> str:
         chroma_volumes = [v for v in volumes if v.endswith('_chroma_data') or v == 'chroma_data']
         
         if chroma_volumes:
-            # Check which one is actually in use by the chromadb container
             for vol in chroma_volumes:
                 result = subprocess.run(
                     ["docker", "inspect", "erica-chromadb", "--format", "{{range .Mounts}}{{.Name}}{{end}}"],
@@ -55,7 +54,6 @@ def get_chromadb_volume_name() -> str:
                 )
                 if vol in result.stdout:
                     return vol
-            # Fallback to first found
             return chroma_volumes[0]
     
     # Fallback to common names
