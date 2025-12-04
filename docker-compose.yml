@@ -1,0 +1,123 @@
+services:
+  # ===========================================
+  # LLM Server - Ollama (Optional, disabled by default for OpenRouter setup)
+  # Uncomment if you want to run local models later
+  # ===========================================
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: erica-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   restart: unless-stopped
+
+  # ===========================================
+  # Graph Database - Neo4j for Knowledge Graph
+  # ===========================================
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: erica-neo4j
+    ports:
+      - "7474:7474"  # HTTP browser
+      - "7687:7687"  # Bolt protocol
+    environment:
+      - NEO4J_AUTH=neo4j/erica_password_123
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ===========================================
+  # Vector Database - ChromaDB
+  # ===========================================
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: erica-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+    # ChromaDB container doesn't have curl/wget/python, so we'll check from app container
+    restart: unless-stopped
+
+  # ===========================================
+  # Document Storage - MongoDB
+  # ===========================================
+  mongodb:
+    image: mongo:7.0
+    container_name: erica-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=erica
+      - MONGO_INITDB_ROOT_PASSWORD=erica_password_123
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ===========================================
+  # MongoDB Web UI (optional, for debugging)
+  # ===========================================
+  mongo-express:
+    image: mongo-express:latest
+    container_name: erica-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=erica
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=erica_password_123
+      - ME_CONFIG_MONGODB_URL=mongodb://erica:erica_password_123@mongodb:27017/
+      - ME_CONFIG_BASICAUTH=false
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  # ===========================================
+  # Main Application Container
+  # ===========================================
+  app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: erica-app
+      ports:
+        - "8888:8888"
+        - "8501:8501"
+      volumes:
+        - ./src:/app/src
+        - ./notebooks:/app/notebooks
+        - ./data:/app/data
+        - ./config:/app/config
+      env_file:
+        - .env
+      depends_on:
+        neo4j:
+          condition: service_healthy
+        chromadb:
+          condition: service_started
+        mongodb:
+          condition: service_healthy
+      stdin_open: true
+      tty: true
+      restart: unless-stopped
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  chroma_data:
+  mongo_data:
